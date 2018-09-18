@@ -1,0 +1,5 @@
+**/*.stack-work/
+*~
+.import/
+libgodot-haskell-plugin.so
+*.cabal

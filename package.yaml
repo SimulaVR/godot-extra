@@ -1,0 +1,39 @@
+name: godot-extra
+version: '0.1.0.0'
+description: Please see the README on Github at <https://gitlab.com/lboklin/godot-extra#readme>
+author: Ludvig Böklin
+maintainer: ludvig.boklin@protonmail.com
+copyright: 2018 Ludvig Böklin
+license: BSD3
+homepage: https://gitlab.com/lboklin/godot-extra#readme
+git: https://gitlab.com/lboklin/godot-extra
+bug-reports: https://gitlab.com/lboklin/godot-extra/issues
+extra-source-files:
+- ChangeLog.md
+- README.md
+default-extensions:
+- NoImplicitPrelude
+- OverloadedStrings
+- NamedFieldPuns
+- LambdaCase
+- ScopedTypeVariables
+dependencies:
+- base >=4.7 && <5
+- universum
+- linear
+- vector
+- text
+- godot-haskell
+ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs
+library:
+  source-dirs: src
+  exposed-modules:
+  - Godot.Extra
+  - Godot.Extra.Register
+  other-modules:
+  - Godot.Extra.Instances
+  - Godot.Extra.Prelude
+  - Godot.Extra.Properties
+  - Godot.Extra.Types
+  - Godot.Extra.Util
+  - Godot.Extra.Variants
