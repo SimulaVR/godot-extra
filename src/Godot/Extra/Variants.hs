@@ -72,59 +72,24 @@ withVariant :: (Typeable a, AsVariant a) => (a -> IO b) -> GodotVariant -> IO b
 withVariant f v = fromGodotVariant v >>= f
 
 
-{-
- --- | Get argument 'n' in the variant arguments 'Vector'
- -getArg
- -  :: forall a
- -   . (Typeable a, AsVariant a)
- -  => Int
- -  -> Vector GodotVariant
- -  -> IO (Maybe a)
- -getArg n args = args !? n & \case
- -  Just vt -> Just <$> fromGodotVariant vt
- -  Nothing -> return Nothing
- -
- -
- --- | Unsafe version of getArg. Only use when you're sure the argument exists!
- --- An example of appropriate use is getting the delta value from '_process'.
- -getArg'
- -  :: forall a . (Typeable a, AsVariant a) => Int -> Vector GodotVariant -> IO a
- -getArg' n args = args !? n & \case
- -  Just vt -> fromGodotVariant vt
- -  Nothing -> error "Failed to get argument."
- -}
-
-
 -- | Get argument 'n' in the variant arguments 'Vector'
 getArg
-  :: forall low high
-   . ( Typeable low
-     , AsVariant low
-     , GodotFFI low high
-     , high ~ (TypeOf 'HaskellTy low)
-     )
+  :: forall a
+   . (Typeable a, AsVariant a)
   => Int
   -> Vector GodotVariant
-  -> IO (Maybe (HighLevelOf low))
+  -> IO (Maybe a)
 getArg n args = args !? n & \case
-  Just vt -> Just <$> highFromVariant False (VT vt)
+  Just vt -> Just <$> fromGodotVariant vt
   Nothing -> return Nothing
 
 
  -- | Unsafe version of getArg. Only use when you're sure the argument exists!
  -- An example of appropriate use is getting the delta value from '_process'.
 getArg'
-  :: forall low high
-   . ( Typeable low
-     , AsVariant low
-     , GodotFFI low high
-     , high ~ (TypeOf 'HaskellTy low)
-     )
-  => Int
-  -> Vector GodotVariant
-  -> IO (HighLevelOf low)
-getArg' n args = getArg n args >>= \case
-  Just a  -> return a
+  :: forall a . (Typeable a, AsVariant a) => Int -> Vector GodotVariant -> IO a
+getArg' n args = args !? n & \case
+  Just vt -> fromGodotVariant vt
   Nothing -> error "Failed to get argument."
 
 

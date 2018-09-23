@@ -26,6 +26,10 @@ import           Godot.Gdnative.Internal
 
 import           Godot.Extra.Prelude
 
+
+{-type GFunc cls = GodotObject -> cls -> Vector GodotVariant -> IO GodotVariant-}
+
+
 data GodotMethod cls where
   GodotMethod
     :: { methodRPCMode :: RPC
