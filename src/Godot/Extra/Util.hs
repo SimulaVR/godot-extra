@@ -6,10 +6,11 @@ module Godot.Extra.Util where
 
 import           Universum.Monad.Maybe
 
+import           Foreign.C                                ( withCString )
+
 import           Godot.Api
 import qualified Godot.Gdnative.Internal.Api   as Api
 import qualified Godot.Methods                 as G
-import           Godot.Gdnative.Types
 import           Godot.Gdnative.Types
 import           Godot.Internal.Dispatch                  ( (:<)
                                                           , safeCast
@@ -93,11 +94,13 @@ getNode self np = do
 
 
 getEngine :: IO Godot_Engine
-getEngine = getSingleton Godot_Engine "Engine"
+getEngine = Api.godot_global_get_singleton & withCString (unpack "Engine")
+  >>= asClass' Godot_Engine "Engine"
 
 
 getClassDB :: IO Godot_ClassDB
-getClassDB = getSingleton Godot_ClassDB "ClassDB"
+getClassDB = Api.godot_global_get_singleton & withCString (unpack "ClassDB")
+  >>= asClass' Godot_ClassDB "ClassDB"
 
 
 getSingleton :: (GodotObject :< b) => (GodotObject -> b) -> Text -> IO b
