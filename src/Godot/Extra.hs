@@ -5,8 +5,7 @@ module Godot.Extra
   )
 where
 
-import           Godot.Extra.Instances         as M
-                                                          ( )
+import           Godot.Extra.Instances         as M ()
 import           Godot.Extra.Properties        as M
 import           Godot.Extra.Types             as M
 import           Godot.Extra.Util              as M

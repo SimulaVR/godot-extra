@@ -10,6 +10,7 @@ import           Godot.Internal.Dispatch
 import qualified Godot.Methods                 as G
 import           Data.Text                     as T
 import           Godot.Extra.Prelude
+import           Godot.Api
 
 
 -- | Type to help with type conversions
@@ -35,16 +36,16 @@ asClass
   -> Text
   -> a
   -> IO (Maybe b)
-asClass constr cls a = do
-  isClass' <- a `isClass` cls
+asClass constr clsName a = do
+  isClass' <- a `isClass` clsName
   return $ if isClass' then Just $ constr $ safeCast a else Nothing
 
 
 asClass'
   :: (GodotObject :< a, a :< b) => (GodotObject -> b) -> Text -> a -> IO b
-asClass' constr cls a = asClass constr cls a >>= \case
+asClass' constr clsName a = asClass constr clsName a >>= \case
   Just a' -> return a'
-  Nothing -> error $ "Could not cast to " `append` cls
+  Nothing -> error $ "Could not cast to " `append` clsName
 
 
 asObj :: (GodotObject :< a) => a -> GodotObject
@@ -52,9 +53,13 @@ asObj a = safeCast a
 
 
 isClass :: GodotObject :< a => a -> Text -> IO Bool
-isClass obj cls = do
-  clsStr <- toLowLevel cls
-  G.is_class (asObj obj) clsStr
+isClass obj clsName = do
+  objClass <- G.get_class (GodotNode $ asObj obj) >>= fromLowLevel
+  let clsName' =
+        if objClass /= "" && T.head objClass == '_'
+        then "_" `mappend` clsName
+        else clsName
+  toLowLevel clsName' >>= G.is_class (asObj obj)
 
 
 -- If at some point all Godot types gets an instance of GodotClass, this would be

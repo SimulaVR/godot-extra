@@ -29,6 +29,7 @@ library:
   source-dirs: src
   exposed-modules:
   - Godot.Extra
+  - Godot.Extra.Debug
   - Godot.Extra.Register
   other-modules:
   - Godot.Extra.Instances

@@ -1,20 +1,15 @@
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE LambdaCase            #-}
 {-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
-{-# LANGUAGE TypeFamilies          #-}
 module Godot.Extra.Util where
-
-import           Foreign.C                                ( withCString )
 
 import           Universum.Monad.Maybe
 
 import           Godot.Api
 import qualified Godot.Gdnative.Internal.Api   as Api
 import qualified Godot.Methods                 as G
+import           Godot.Gdnative.Types
 import           Godot.Gdnative.Types
 import           Godot.Internal.Dispatch                  ( (:<)
                                                           , safeCast
@@ -33,7 +28,7 @@ godotPrint str = Api.godot_print =<< toLowLevel str
 
 instance' :: (GodotObject :< a) => (GodotObject -> a) -> Text -> IO (Maybe a)
 instance' constr className = do
-  classDB <- getSingleton Godot_ClassDB "ClassDB"
+  classDB <- getClassDB
   vt      <- (G.instance' classDB =<< toLowLevel className) >>= fromLowLevel
   case fromVariant vt :: Maybe GodotObject of
     Just obj -> asClass constr className obj
@@ -56,6 +51,22 @@ load constr clsName url = do
     Just a -> return a
     Nothing ->
       error $ unwords ["Could not instantiate ", url, " as a ", clsName]
+
+
+newNS :: (GodotObject :< a)
+  => (GodotObject -> a) -> Text -> [Variant 'GodotTy] -> Text -> IO a
+newNS constr clsName args url = do
+  load GodotNativeScript "NativeScript" url
+    >>= (flip G.new args :: GodotNativeScript -> IO GodotObject)
+    >>= asClass' constr clsName
+
+
+sceneInstance :: (GodotNode :< a)
+  => Int -> (GodotObject -> a) -> Text -> Text -> IO a
+sceneInstance genEditState constr clsName url =
+  load GodotPackedScene "PackedScene" url
+    >>= flip G.instance' genEditState
+    >>= asClass' constr clsName
 
 
 -- | Convenience function for moving a node from one parent to another.
@@ -81,17 +92,28 @@ getNode self np = do
     else return Nothing
 
 
+getEngine :: IO Godot_Engine
+getEngine = getSingleton Godot_Engine "Engine"
+
+
+getClassDB :: IO Godot_ClassDB
+getClassDB = getSingleton Godot_ClassDB "ClassDB"
+
+
 getSingleton :: (GodotObject :< b) => (GodotObject -> b) -> Text -> IO b
-getSingleton constr name =
-  Api.godot_global_get_singleton
-    &   withCString (unpack name)
-    >>= asClass' constr name
+getSingleton constr name = do
+  engine <- getEngine
+  name' <- toLowLevel name
+  b <- G.has_singleton engine name'
+  if b
+    then G.get_singleton engine name' >>= asClass' constr name
+    else error $ "No singleton named " `mappend` name
 
 
 unref :: (GodotReference :< a) => a -> IO ()
 unref ref = whenM (G.unreference ref') $ do
   clsName <- G.get_class ref' >>= fromLowLevel
-  godotPrint $! fold ["Unreferencing: ", clsName] :: IO ()
+  godotPrint $! fold ["Unreferencing: ", clsName]
   Api.godot_object_destroy $! obj
   where ref'@(GodotReference obj) = safeCast ref
 

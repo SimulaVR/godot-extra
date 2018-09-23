@@ -8,9 +8,12 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 module Godot.Extra.Register
-  ( ClassExport(..)
+  ( GdnativeHandle
+  , ClassExport(..)
+  , GodotClass(..)
   , Registerer(..)
   , GodotMethod(..)
+  , GFunc
   , RPC(..)
   , registerClass
   , registerMethod
@@ -27,7 +30,7 @@ import           Godot.Gdnative.Internal
 import           Godot.Extra.Prelude
 
 
-{-type GFunc cls = GodotObject -> cls -> Vector GodotVariant -> IO GodotVariant-}
+type GFunc cls = cls -> Vector GodotVariant -> IO GodotVariant
 
 
 data GodotMethod cls where
@@ -53,6 +56,7 @@ data RPC
 -- have to make it an instance of both @GodotClass@ and @ClassExport@.
 class (GodotClass a, Typeable a) => ClassExport a where
   classExtends :: Text
+  classInit :: GodotObject -> IO a
   classMethods :: [GodotMethod a]
 
 
