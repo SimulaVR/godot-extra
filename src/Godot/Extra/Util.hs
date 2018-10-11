@@ -70,6 +70,12 @@ newNS constr clsName args url = do
       >>= asClass constr clsName
     Nothing -> return Nothing
 
+unsafeNewNS :: (GodotObject :< a)
+  => (GodotObject -> a) -> Text -> [Variant 'GodotTy] -> Text -> IO a
+unsafeNewNS constr clsName args url = do
+  newNS constr clsName args url >>= \case
+    Just ns -> return ns
+    Nothing -> error $ fold ["Could not instance the ", clsName, " from ", url]
 
 sceneInstance :: (GodotNode :< a)
   => Int -> (GodotObject -> a) -> Text -> Text -> IO (Maybe a)
@@ -78,6 +84,13 @@ sceneInstance genEditState constr clsName url =
     Just tscn -> G.instance' tscn genEditState
       >>= asClass constr clsName
     Nothing -> return Nothing
+
+unsafeSceneInstance :: (GodotNode :< a)
+  => Int -> (GodotObject -> a) -> Text -> Text -> IO a
+unsafeSceneInstance genEditState constr clsName url =
+  sceneInstance genEditState constr clsName url >>= \case
+    Just a -> return a
+    Nothing -> error $ "Could not instance the scene " `mappend` url
 
 
 -- | Convenience function for moving a node from one parent to another.
