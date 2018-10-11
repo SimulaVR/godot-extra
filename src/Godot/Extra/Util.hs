@@ -42,32 +42,42 @@ unsafeInstance constr className = instance' constr className >>= \case
   Nothing -> error $ "Could not instance " `mappend` className
 
 
-load :: (GodotResource :< a) => (GodotObject -> a) -> Text -> Text -> IO a
+load :: (GodotResource :< a) => (GodotObject -> a) -> Text -> Text -> IO (Maybe a)
 load constr clsName url = do
   rl       <- getSingleton Godot_ResourceLoader "ResourceLoader"
   url'     <- toLowLevel url
   clsName' <- toLowLevel clsName
-  res      <- G.load rl url' clsName' False
-  res & asClass constr clsName >>= \case
-    Just a -> return a
-    Nothing ->
-      error $ unwords ["Could not instantiate ", url, " as a ", clsName]
+  res      <- G.exists rl url' clsName' >>= \exists ->
+    if exists
+    then Just <$> G.load rl url' clsName' False
+    else return Nothing
+
+  res & \case
+    Just a -> asClass constr clsName a
+    Nothing -> return Nothing
+
+unsafeLoad :: (GodotResource :< a) => (GodotObject -> a) -> Text -> Text -> IO a
+unsafeLoad constr clsName url = load constr clsName url >>= \case
+  Just a -> return a
+  Nothing -> error $ unwords ["Could not instantiate ", url, " as a ", clsName]
 
 
 newNS :: (GodotObject :< a)
-  => (GodotObject -> a) -> Text -> [Variant 'GodotTy] -> Text -> IO a
+  => (GodotObject -> a) -> Text -> [Variant 'GodotTy] -> Text -> IO (Maybe a)
 newNS constr clsName args url = do
-  load GodotNativeScript "NativeScript" url
-    >>= (flip G.new args :: GodotNativeScript -> IO GodotObject)
-    >>= asClass' constr clsName
+  load GodotNativeScript "NativeScript" url >>= \case
+    Just ns -> (G.new (ns :: GodotNativeScript) args :: IO GodotObject)
+      >>= asClass constr clsName
+    Nothing -> return Nothing
 
 
 sceneInstance :: (GodotNode :< a)
-  => Int -> (GodotObject -> a) -> Text -> Text -> IO a
+  => Int -> (GodotObject -> a) -> Text -> Text -> IO (Maybe a)
 sceneInstance genEditState constr clsName url =
-  load GodotPackedScene "PackedScene" url
-    >>= flip G.instance' genEditState
-    >>= asClass' constr clsName
+  load GodotPackedScene "PackedScene" url >>= \case
+    Just tscn -> G.instance' tscn genEditState
+      >>= asClass constr clsName
+    Nothing -> return Nothing
 
 
 -- | Convenience function for moving a node from one parent to another.
