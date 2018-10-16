@@ -24,7 +24,7 @@ dependencies:
 - vector
 - text
 - godot-haskell
-ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs
+ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
 library:
   source-dirs: src
   exposed-modules:
