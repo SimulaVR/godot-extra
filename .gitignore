@@ -2,4 +2,6 @@
 *~
 .import/
 libgodot-haskell-plugin.so
-*.cabal
+
+#https://github.com/commercialhaskell/stack/issues/4292
+#*.cabal

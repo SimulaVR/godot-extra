@@ -1,0 +1,50 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 8a8b9795c6f10e256779a794a65241fdef3a8aab9c4c82a0069612f7b4af76b5
+
+name:           godot-extra
+version:        0.1.0.0
+description:    Please see the README on Github at <https://gitlab.com/lboklin/godot-extra#readme>
+homepage:       https://gitlab.com/lboklin/godot-extra#readme
+bug-reports:    https://gitlab.com/lboklin/godot-extra/issues
+author:         Ludvig Böklin
+maintainer:     ludvig.boklin@protonmail.com
+copyright:      2018 Ludvig Böklin
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://gitlab.com/lboklin/godot-extra
+
+library
+  exposed-modules:
+      Godot.Extra
+      Godot.Extra.Debug
+      Godot.Extra.Register
+  other-modules:
+      Godot.Extra.Instances
+      Godot.Extra.Prelude
+      Godot.Extra.Properties
+      Godot.Extra.Types
+      Godot.Extra.Util
+      Godot.Extra.Variants
+  hs-source-dirs:
+      src
+  default-extensions: NoImplicitPrelude OverloadedStrings NamedFieldPuns LambdaCase ScopedTypeVariables
+  ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
+  build-depends:
+      base >=4.7 && <5
+    , godot-haskell
+    , linear
+    , text
+    , universum
+    , vector
+  default-language: Haskell2010
