@@ -1,5 +1,5 @@
 name: godot-extra
-version: '0.1.0.0'
+version: '0.1.1.0'
 description: Please see the README on Github at <https://gitlab.com/lboklin/godot-extra#readme>
 author: Ludvig Böklin
 maintainer: ludvig.boklin@protonmail.com
@@ -18,13 +18,19 @@ default-extensions:
 - LambdaCase
 - ScopedTypeVariables
 dependencies:
-- base >=4.7 && <5
+- base >=4.12 && <5
 - universum
 - linear
 - vector
 - text
 - godot-haskell
-ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
+ghc-options:
+  -Wall
+  -fwarn-unused-do-bind
+  -fwarn-tabs
+  -fwarn-incomplete-uni-patterns
+  -fwarn-incomplete-record-updates
+  -threaded
 library:
   source-dirs: src
   exposed-modules:

@@ -1,11 +1,13 @@
--- This file has been generated from package.yaml by hpack version 0.28.2.
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.30.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 8a8b9795c6f10e256779a794a65241fdef3a8aab9c4c82a0069612f7b4af76b5
+-- hash: 88107d6d6a33bba8bd177c026fecc17794160ae17ea67c77976febc35daf145f
 
 name:           godot-extra
-version:        0.1.0.0
+version:        0.1.1.0
 description:    Please see the README on Github at <https://gitlab.com/lboklin/godot-extra#readme>
 homepage:       https://gitlab.com/lboklin/godot-extra#readme
 bug-reports:    https://gitlab.com/lboklin/godot-extra/issues
@@ -15,7 +17,6 @@ copyright:      2018 Ludvig Böklin
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
-cabal-version:  >= 1.10
 extra-source-files:
     ChangeLog.md
     README.md
@@ -39,9 +40,9 @@ library
   hs-source-dirs:
       src
   default-extensions: NoImplicitPrelude OverloadedStrings NamedFieldPuns LambdaCase ScopedTypeVariables
-  ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates
+  ghc-options: -Wall -fwarn-unused-do-bind -fwarn-tabs -fwarn-incomplete-uni-patterns -fwarn-incomplete-record-updates -threaded
   build-depends:
-      base >=4.7 && <5
+      base >=4.12 && <5
     , godot-haskell
     , linear
     , text

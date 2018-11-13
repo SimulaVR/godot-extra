@@ -10,7 +10,6 @@ where
 import           Universum                     as Prelude
                                                    hiding ( get
                                                           , set
-                                                          , print
                                                           )
 
 import           Control.Category              as Prelude

@@ -50,7 +50,7 @@ data RPC
   | Slave
 
 
--- | Instead of fixing upstream @GodotClass@ we'll just lazily "extend" it.
+-- | Instead of fixing upstream @GodotClass@ we'll just "extend" it.
 -- This is because I'm still not sure of this approach so I can't justify
 -- an upstream change. Note that to register your class type you will
 -- have to make it an instance of both @GodotClass@ and @ClassExport@.
