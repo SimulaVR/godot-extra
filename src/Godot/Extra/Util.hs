@@ -6,6 +6,9 @@ module Godot.Extra.Util where
 
 import           Universum.Monad.Maybe
 
+import           Foreign                                  ( deRefStablePtr
+                                                          , castPtrToStablePtr
+                                                          )
 import           Foreign.C                                ( withCString )
 
 import           Godot.Api
@@ -63,19 +66,20 @@ unsafeLoad constr clsName url = load constr clsName url >>= \case
 
 
 newNS :: (GodotObject :< a)
-  => (GodotObject -> a) -> Text -> [Variant 'GodotTy] -> Text -> IO (Maybe a)
-newNS constr clsName args url = do
+  => [Variant 'GodotTy] -> Text -> IO (Maybe a)
+newNS args url = do
   load GodotNativeScript "NativeScript" url >>= \case
     Just ns -> (G.new (ns :: GodotNativeScript) args :: IO GodotObject)
-      >>= asClass constr clsName
+      >>= Api.godot_nativescript_get_userdata
+      >>= deRefStablePtr . castPtrToStablePtr
     Nothing -> return Nothing
 
 unsafeNewNS :: (GodotObject :< a)
-  => (GodotObject -> a) -> Text -> [Variant 'GodotTy] -> Text -> IO a
-unsafeNewNS constr clsName args url = do
-  newNS constr clsName args url >>= \case
+  => [Variant 'GodotTy] -> Text -> IO a
+unsafeNewNS args url = do
+  newNS args url >>= \case
     Just ns -> return ns
-    Nothing -> error $ fold ["Could not instance the ", clsName, " from ", url]
+    Nothing -> error $ fold ["Could not instance class from ", url]
 
 sceneInstance :: (GodotNode :< a)
   => Int -> (GodotObject -> a) -> Text -> Text -> IO (Maybe a)
