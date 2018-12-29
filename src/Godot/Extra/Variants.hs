@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RankNTypes #-}
@@ -70,6 +71,21 @@ retnil = godot_variant_new_nil
 -- | Convert the argument variant type into a proper type
 withVariant :: (Typeable a, AsVariant a) => (a -> IO b) -> GodotVariant -> IO b
 withVariant f v = fromGodotVariant v >>= f
+
+
+withArg :: (GodotObject -> IO b) -> Int -> Vector GodotVariant -> IO (Maybe b)
+withArg f n args = getArg n args >>= \case
+  Just arg -> do
+    !a <- f arg
+    godot_object_destroy arg
+    return $ Just a
+  Nothing -> return Nothing
+
+
+withArg' :: (GodotObject -> IO b) -> Int -> Vector GodotVariant -> IO b
+withArg' f n args = withArg f n args >>= \case
+  Just a -> return a
+  Nothing -> error "Failed to use argument."
 
 
 -- | Get argument 'n' in the variant arguments 'Vector'
