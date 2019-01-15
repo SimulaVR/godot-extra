@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE GADTs                 #-}
@@ -11,6 +12,10 @@ import qualified Godot.Methods                 as G
 import           Data.Text                     as T
 import           Godot.Extra.Prelude
 import           Godot.Api
+
+
+-- | For more readable code
+type Inherits super cls = (super :< cls)
 
 
 -- | Type to help with type conversions
