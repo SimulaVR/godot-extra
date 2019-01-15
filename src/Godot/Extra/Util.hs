@@ -82,8 +82,8 @@ newNS args url = do
     Just ns -> Just <$> G.new (ns :: GodotNativeScript) args
     Nothing -> return Nothing
 
-unsafeNewNS :: [Variant 'GodotTy] -> Text -> IO GodotObject
-unsafeNewNS args url = do
+newNS' :: [Variant 'GodotTy] -> Text -> IO GodotObject
+newNS' args url = do
   newNS args url >>= \case
     Just ns -> return ns
     Nothing -> error $ fold ["Could not instance class from ", url]
