@@ -76,16 +76,13 @@ fromNativeScript :: GodotObject -> IO a
 fromNativeScript = Api.godot_nativescript_get_userdata
   >=> deRefStablePtr . castPtrToStablePtr
 
-newNS :: (GodotObject :< a)
-  => [Variant 'GodotTy] -> Text -> IO (Maybe a)
+newNS :: [Variant 'GodotTy] -> Text -> IO (Maybe GodotObject)
 newNS args url = do
   load GodotNativeScript "NativeScript" url >>= \case
-    Just ns -> (G.new (ns :: GodotNativeScript) args :: IO GodotObject)
-      >>= fromNativeScript
+    Just ns -> Just <$> G.new (ns :: GodotNativeScript) args
     Nothing -> return Nothing
 
-unsafeNewNS :: (GodotObject :< a)
-  => [Variant 'GodotTy] -> Text -> IO a
+unsafeNewNS :: [Variant 'GodotTy] -> Text -> IO GodotObject
 unsafeNewNS args url = do
   newNS args url >>= \case
     Just ns -> return ns
