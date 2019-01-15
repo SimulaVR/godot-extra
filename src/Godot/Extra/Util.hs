@@ -18,7 +18,7 @@ import           Godot.Gdnative.Types
 import           Godot.Internal.Dispatch                  ( (:<)
                                                           , safeCast
                                                           )
-import           Godot.Gdnative.Internal                  ( GodotNodePath
+import           Godot.Gdnative.Internal                  (GodotVariant,  GodotNodePath
                                                           , GodotObject
                                                           )
 
@@ -28,6 +28,13 @@ import           Godot.Extra.Types
 
 godotPrint :: Text -> IO ()
 godotPrint str = Api.godot_print =<< toLowLevel str
+
+
+-- | For cleaner duck-typed (unsafe) function calls
+call :: Inherits GodotObject a => Text -> [Variant 'GodotTy] -> a -> IO GodotVariant
+call funcName args obj = do
+  funcName' <- toLowLevel funcName
+  G.call (asObj obj) funcName' args
 
 
 instance' :: (GodotObject :< a) => (GodotObject -> a) -> Text -> IO (Maybe a)
