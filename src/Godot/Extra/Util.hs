@@ -64,14 +64,17 @@ unsafeLoad constr clsName url = load constr clsName url >>= \case
   Just a -> return a
   Nothing -> error $ unwords ["Could not instantiate ", url, " as a ", clsName]
 
+-- | Cast an instanced NativeScript object into a proper type
+fromNativeScript :: GodotObject -> IO a
+fromNativeScript = Api.godot_nativescript_get_userdata
+  >=> deRefStablePtr . castPtrToStablePtr
 
 newNS :: (GodotObject :< a)
   => [Variant 'GodotTy] -> Text -> IO (Maybe a)
 newNS args url = do
   load GodotNativeScript "NativeScript" url >>= \case
     Just ns -> (G.new (ns :: GodotNativeScript) args :: IO GodotObject)
-      >>= Api.godot_nativescript_get_userdata
-      >>= deRefStablePtr . castPtrToStablePtr
+      >>= fromNativeScript
     Nothing -> return Nothing
 
 unsafeNewNS :: (GodotObject :< a)
