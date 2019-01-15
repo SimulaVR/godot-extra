@@ -17,6 +17,7 @@ module Godot.Extra.Register
   , RPC(..)
   , registerClass
   , registerMethod
+  , func
   )
 where
 
@@ -26,8 +27,14 @@ import           Godot.Nativescript            as GDNS
                                                           , GdnativeHandle
                                                           )
 import           Godot.Gdnative.Internal
+import           Godot.Gdnative.Types                     ( AsVariant
+                                                          , toLowLevel
+                                                          , toVariant
+                                                          )
 
 import           Godot.Extra.Prelude
+
+import qualified Data.Text                     as T
 
 
 type GFunc cls = cls -> Vector GodotVariant -> IO GodotVariant
@@ -116,3 +123,25 @@ registerMethod (RegMethod desc GodotMethod {..}) = do
     Sync   -> GodotMethodRpcModeSync
     Master -> GodotMethodRpcModeMaster
     Slave  -> GodotMethodRpcModeSlave
+
+
+-- | Example usage:
+-- func NoRPC "_unhandled_input" ["InputEvent"] $
+--   \self [evObj] ->
+--     (fromGodotVariant evObj :: IO GodotObject)
+--       >>= asClass GodotInputEventKey "InputEventKey"
+--       >>= flip whenJust (handleInputKey self)
+func :: (ClassExport cls, AsVariant a)
+  => RPC -> Text -> [Text] -> (cls -> [GodotVariant] -> IO a) -> GodotMethod cls
+func rpc mthdName argTypes fn =
+  GodotMethod rpc mthdName $ \self args -> do
+    let argList = toList args
+    if length argList == length argTypes
+      then toLowLevel . toVariant =<< fn self argList
+      else methodArgsErr mthdName argTypes
+ where
+  methodArgsErr :: Text -> [Text] -> a
+  methodArgsErr fnName expectedArgs =
+    error $ mappend
+      (T.concat ["Error: ", fnName, ": Expected arguments: "])
+      (T.intercalate ", " expectedArgs)
