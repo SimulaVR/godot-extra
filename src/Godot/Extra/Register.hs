@@ -145,3 +145,42 @@ func rpc mthdName argTypes fn =
     error $ mappend
       (T.concat ["Error: ", fnName, ": Expected arguments: "])
       (T.intercalate ", " expectedArgs)
+
+{- Insertion pending resolution of godot-haskell gdwlroots branch issue.
+
+withGodotSignalArgumentArray :: [SignalArgument] -> ((Ptr GodotSignalArgument, CInt) -> IO a) -> IO a
+withGodotSignalArgumentArray listOfSignalArguments c_func = do
+  listOfGodotSignalArguments <- mapM asGodotSignalArgument listOfSignalArguments
+  let sizeOfArray = (length listOfSignalArguments) * (sizeOf (undefined :: GodotSignalArgument))
+  allocaBytes sizeOfArray $ \godotSignalArgumentArrayPtr ->
+    withGodotSignalArguments listOfGOdotSignalArguments 0 godotSignalArgumentArrayPtr c_func 
+    where
+      withGodotSignalArguments [GodotSignalArgument] -> Int -> Ptr GodotSignalArgument -> ((Ptr GodotSignalArgument, CInt) -> IO a) -> IO a
+
+      -- Passing a non-empty list copies the list's head into the
+      -- godotSignalArgumentArrayPtr (with offset gsArgIndex); we do this
+      -- recursively until the list is empty.
+      withGodotSignalArguments (gsArg:listOfGSArgs) gsArgIndex godotSignalArgumentArrayPtr c_func = do
+        with gsArg $ \gsArgPtr -> do
+          copyGodotSignalArgument (godotSignalArgumentArrayPtr `plusPtr` (gsArgIndex * (sizeOf (undefined :: GodotSignalArgument)))) gsArgPtr
+          withGodotSignalArguments listOfGSArgs (gsArgIndex + 1) godotSignalArgumentArrayPtr c_func
+
+      -- Passing an empty list just calls the c_func.
+      withGodotSignalArguments [] gsArgIndex godotSignalArgumentArrayPtr c_func = c_func (godotSignalArgumentArrayPtr, fromIntegral gsArgIndex)
+
+      copyGodotSignalArgument:: Ptr GodotSignalArgument -> Ptr GodotSignalArgument -> IO ()
+      copyGodotSignalArgument dest src = copyBytes dest src (sizeOf (undefined :: GodotSignalArgument))
+
+-- | Helper function to quickly make a GodotSignal with idiomatic Haskell types.
+-- | This forces the Godot signal to not have any default arguments.
+makeGodotSignal :: String -> [SignalArgument] -> IO (GodotSignal)
+makeGodotSignal stringSignalName listOfSignalArgs = do
+  withGodotSignalArgumentArray listOfSignalArguments $ \godotSignalArgs' ->
+    return GodotSignal { godotSignalName = fromLowLevel (pack stringSignalName)
+                       , godotSignalNumArgs = length listOfSignalArgs
+                       , godotSignalArgs = godotSignalArgs'
+                       , godotSignalNumDefaultArgs = 0
+                       , godotSignalDefaultArgs = nullPtr
+                       }
+
+-}
