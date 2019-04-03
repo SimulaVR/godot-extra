@@ -37,6 +37,7 @@ library:
   - Godot.Extra
   - Godot.Extra.Debug
   - Godot.Extra.Register
+  - Godot.Extra.Signals
   other-modules:
   - Godot.Extra.Instances
   - Godot.Extra.Prelude

@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.30.0.
+-- This file has been generated from package.yaml by hpack version 0.31.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 88107d6d6a33bba8bd177c026fecc17794160ae17ea67c77976febc35daf145f
+-- hash: e88d97d8c0d7336a071403d23c10a6d09b3de35ee373b852a002f0d6666fb00c
 
 name:           godot-extra
 version:        0.1.1.0
@@ -30,6 +30,7 @@ library
       Godot.Extra
       Godot.Extra.Debug
       Godot.Extra.Register
+      Godot.Extra.Signals
   other-modules:
       Godot.Extra.Instances
       Godot.Extra.Prelude
