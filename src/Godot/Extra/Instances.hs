@@ -44,13 +44,13 @@ type instance TypeOf 'HaskellTy GodotArray = [GodotVariant]
 instance GodotFFI GodotArray [GodotVariant] where
   fromLowLevel vs = do
     size <- fromIntegral <$> G.godot_array_size vs
-    let maybeNext n v =
-          if n == (size - 1)
-          then Nothing
-          else Just (v, n + 1)
-    let variantAt n =
-          maybeNext n <$> (G.godot_array_get vs n)
-    unfoldrM variantAt 0
+    let go n =
+          if n == size
+            then return Nothing
+            else do
+              v <- G.godot_array_get vs n
+              return (Just (v, n + 1))
+    unfoldrM go 0
 
   toLowLevel vs = do
     array <- G.godot_array_new
